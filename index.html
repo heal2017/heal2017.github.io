@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D Earth-Moon Model</title>
+<title>3D Orbit with Depth Effect</title>
 <style>
   * {
     margin: 0;
@@ -23,10 +23,13 @@
 
   .container {
     perspective: 1000px;
+    position: relative;
+    width: 300px;
+    height: 300px;
   }
 
   .center {
-    position: relative;
+    position: absolute;
     width: 80px;
     height: 80px;
     background-color: #3498db;
@@ -36,20 +39,14 @@
     align-items: center;
     color: white;
     font-size: 18px;
-    transform-style: preserve-3d;
-  }
-
-  .orbit {
-    position: absolute;
-    width: 300px;
-    height: 300px;
+    text-align: center;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    transform-style: preserve-3d;
+    z-index: 1;
   }
 
-  .planet, .moon {
+  .orbiting-sphere {
     position: absolute;
     width: 40px;
     height: 40px;
@@ -60,49 +57,37 @@
     align-items: center;
     color: white;
     font-size: 14px;
-  }
-
-  .moon {
-    width: 20px;
-    height: 20px;
-    background-color: #f1c40f;
+    text-align: center;
   }
 </style>
 </head>
 <body>
   <div class="container">
     <div class="center">Earth</div>
-    <div class="orbit">
-      <div class="planet">Mars</div>
-      <div class="moon">Moon</div>
-    </div>
+    <div class="orbiting-sphere">Mars</div>
   </div>
 
   <script>
-    const orbit = document.querySelector('.orbit');
-    const planet = document.querySelector('.planet');
-    const moon = document.querySelector('.moon');
-
-    let anglePlanet = 0;
-    let angleMoon = 0;
+    const orbitingSphere = document.querySelector('.orbiting-sphere');
+    let angle = 0;
 
     function animate() {
-      // Planet rotation around the Earth
-      const radiusPlanet = 150;
-      anglePlanet += 0.02;
-      const xPlanet = radiusPlanet * Math.cos(anglePlanet);
-      const yPlanet = radiusPlanet * Math.sin(anglePlanet);
+      // 计算轨道半径
+      const radius = 150;
 
-      planet.style.transform = `translate3d(${xPlanet}px, ${yPlanet}px, 0)`;
+      // 更新角度以实现旋转效果
+      angle += 0.02;
 
-      // Moon rotation around the planet
-      const radiusMoon = 50;
-      angleMoon += 0.05;
-      const xMoon = xPlanet + radiusMoon * Math.cos(angleMoon);
-      const yMoon = yPlanet + radiusMoon * Math.sin(angleMoon);
+      // 计算 orbiting-sphere 的 3D 坐标
+      const x = radius * Math.cos(angle);
+      const y = radius * Math.sin(angle) / 2;  // 调整y坐标以模拟环绕效果
+      const z = radius * Math.sin(angle);
 
-      moon.style.transform = `translate3d(${xMoon}px, ${yMoon}px, 0)`;
+      // 根据 z 坐标设置缩放比例和 z-index
+      const scale = (z + radius) / (2 * radius) + 0.5;
+      orbitingSphere.style.transform = `translate3d(${x}px, ${y}px, ${z}px) scale(${scale})`;
 
+      // 递归调用 animate 实现平滑的动画效果
       requestAnimationFrame(animate);
     }
 
